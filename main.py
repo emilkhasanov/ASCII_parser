@@ -48,32 +48,31 @@ class tcp_client(): # класс работы с тср
     def __init__(self):
         self.sock = ''
 
-    def tcp_worker(self, command_input, host_name, port): # отправка команды и получение ответа
+    def tcp_worker(self, command_input, host_name, port):  # отправка команды и получение ответа
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        delay = time.time() + 60  # назначение максимального времени прослушивания ответа
+        self.sock.settimeout(5000)
         self.sock.connect((str(host_name), int(port)))
-        self.sock.sendall(command_input.encode(encoding='utf-8')) # отправка команды
-        response_tcp = self.sock.recv(1024) # получение ответа
-        delay = time.time() + 60 #назначение максимального времени прослушивания ответа
-        while 1 == 1:
-            response_tcp = self.sock.recv(1024)  # получение ответа
-            if time.time() < delay:
-                response_tcp = response_tcp.decode("Ascii")
-                if str(response_tcp[0]) == str(command_input[-1]): # проверка ответа на соответствие ожидаемому типу ответа
-                    return response_tcp
-            else:
-                response_tcp = ''
-                return response_tcp  # возврат пустого ответа в случае не получения данных в течение тайм-аута
+        self.sock.sendall(command_input.encode(encoding='utf-8'))  # отправка команды
+        response_tcp = self.sock.recv(1024).decode("Ascii")  # получение ответа
         self.sock.close()
+        print(response_tcp)
+        if str(response_tcp[0]) == str(command_input[-1]):  # проверка ответа на соответствие ожидаемому типу ответа
+            return response_tcp
+        else:
+            response_tcp = ''
+            return response_tcp  # возврат пустого ответа в случае не получения данных в течение тайм-аута
+
 
 
 if __name__ == '__main__':
     command_list = ['GET_A', 'GET_B', 'GET_C'] # список команд для отправки
     port = 'Com1' #'' пустое значение для авто поиска или название порта в явном виде, например 'Com1'
     baudrate = 9600 # скорость для последовательного порта
-    host_name = '127.0.0.1' # адрес хоста для тср
-    tcp_port = 5005 # порт для тср
+    host_name = 'youtube.com'  # адрес хоста для тср
+    tcp_port = 80  # порт для тср
 
-    client_choise = 'serial' # serial or tcp
+    client_choise = 'tcp' # serial or tcp
 
     if client_choise == 'serial': # в случае выбора последовательного порта
         client = serial_client() # запуск клиента последовательного порта
